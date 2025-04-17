@@ -1,7 +1,51 @@
 import { PrismaClient } from '@prisma/client';
+import jwt from 'jsonwebtoken'; // Make sure to install this
+import dotenv from 'dotenv';
+
+dotenv.config();
 
 const prisma = new PrismaClient();
 
+// 🔐 Get user from JWT token
+export const getLoggedInUser = async (req, res) => {
+    const authHeader = req.headers.authorization;
+
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+        return res.status(401).json({ error: 'No token provided' });
+    }
+
+    const token = authHeader.split(' ')[1];
+
+    try {
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        const userId = decoded.id;
+
+        const user = await prisma.user.findUnique({
+            where: { id: userId },
+            select: {
+                id: true,
+                name: true,
+                email: true,
+                bio: true,
+                profilePic: true,
+                skills: true,
+                role: true,
+                gigs: true,
+                reviews: true,
+            },
+        });
+
+        if (!user) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+
+        res.status(200).json(user);
+    } catch (err) {
+        res.status(401).json({ error: 'Invalid token', message: err.message });
+    }
+};
+
+// 📄 Get user by ID
 export const getUser = async (req, res) => {
     try {
         const { id } = req.params;
@@ -31,6 +75,7 @@ export const getUser = async (req, res) => {
     }
 };
 
+// ✏️ Update user by ID
 export const updateUser = async (req, res) => {
     try {
         const { id } = req.params;

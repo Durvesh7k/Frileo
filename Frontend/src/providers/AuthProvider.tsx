@@ -1,6 +1,5 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from "react";
 import { User, LoginFormData, RegisterFormData } from "@/types";
-import { users } from "@/data/mock";
 import { useToast } from "@/hooks/use-toast";
 import { saveToken } from "../utils/auth" // Adjust path as per your project
 import axiosInstance from "../utils/axiosInstance";
@@ -9,6 +8,7 @@ interface AuthContextType {
   user: User | null;
   login: (data: LoginFormData) => Promise<boolean>;
   register: (data: RegisterFormData) => Promise<boolean>;
+  getUser: () => Promise<void>;  // No parameter needed since it fetches the current logged-in user
   logout: () => void;
   isLoading: boolean;
 }
@@ -104,10 +104,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  const getUser = async() => {
+    try {
+      const response = await axiosInstance.get("/user");
+      setUser(response.data);
+    } catch (err) {
+      console.log("Error in fetching gigs", err);
+    }
+  }
 
   const logout = () => {
     setUser(null);
     localStorage.removeItem("Frielo_user");
+    sessionStorage.removeItem('token');
+
     toast({
       title: "Logged out",
       description: "You have been successfully logged out",
@@ -115,7 +125,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, register, logout, isLoading }}>
+    <AuthContext.Provider value={{ user, login, register, logout, isLoading, getUser }}>
       {children}
     </AuthContext.Provider>
   );

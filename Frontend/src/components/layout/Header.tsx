@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -17,8 +17,12 @@ import MessageBadge from "@/components/messages/MessageBadge";
 
 export default function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const { user, logout } = useAuth();
+  const { user, logout, getUser } = useAuth();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    getUser();
+  }, [user])
 
   const toggleMobileMenu = () => {
     setMobileMenuOpen(!mobileMenuOpen);
@@ -27,6 +31,11 @@ export default function Header() {
   const handleMessageClick = () => {
     navigate("/messages");
   };
+
+  const handleLogout = () => {
+    logout();
+    navigate('/login');
+  }
 
   // Mock unread message count - in a real app, this would come from a data source
   const unreadMessageCount = 3;
@@ -87,7 +96,7 @@ export default function Header() {
                   <DropdownMenuTrigger asChild>
                     <Button variant="ghost" className="relative h-8 w-8 rounded-full">
                       <Avatar className="h-8 w-8">
-                        <AvatarImage src="/placeholder.svg" alt={user.name} />
+                        <AvatarImage src={user.profilePic} alt={user.name} />
                         <AvatarFallback>{user.name.charAt(0)}</AvatarFallback>
                       </Avatar>
                     </Button>
@@ -110,7 +119,7 @@ export default function Header() {
                       <Link to="/messages">Messages</Link>
                     </DropdownMenuItem>
                     <DropdownMenuSeparator />
-                    <DropdownMenuItem onClick={logout}>Log out</DropdownMenuItem>
+                    <DropdownMenuItem onClick={handleLogout}>Log out</DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
               ) : (

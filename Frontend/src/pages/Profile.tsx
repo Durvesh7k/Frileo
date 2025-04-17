@@ -44,9 +44,18 @@ export default function Profile() {
     }
   };
 
-  useEffect(() => {
-    getGigs();
+  const getUser = async() => {
+    try {
+      const response = await axiosInstance.get("/user");
+      setLocalUser(response.data);
+    } catch (err) {
+      console.log("Error in fetching gigs", err);
+    }
+  }
 
+  useEffect(() => {
+    getUser();
+    getGigs();
     // Initialize local user state and profile image when user data is available
     if (user) {
       setLocalUser(user);
@@ -78,6 +87,7 @@ export default function Profile() {
             : []
       });
     }
+
   }, [localUser, form]);
 
   // Handles file selection
