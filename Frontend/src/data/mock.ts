@@ -82,6 +82,7 @@ export const categories: Category[] = [
 ];
 
 // Mock Gigs
+// Corrected Mock Gigs
 export const gigs: Gig[] = [
   {
     id: "g1",
@@ -89,7 +90,7 @@ export const gigs: Gig[] = [
     description: "Get a stunning, unique logo design that represents your brand perfectly. Includes unlimited revisions and all source files.",
     price: 120,
     category: "Design",
-    image: "https://images.unsplash.com/photo-1545239351-ef35f43d514b?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTJ8fGxvZ28lMjBkZXNpZ258ZW58MHx8MHx8fDA%3D",
+    images: ["https://images.unsplash.com/photo-1545239351-ef35f43d514b?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTJ8fGxvZ28lMjBkZXNpZ258ZW58MHx8MHx8fDA%3D"],
     rating: 4.9,
     reviewCount: 126,
     sellerId: "u2",
@@ -107,7 +108,7 @@ export const gigs: Gig[] = [
     description: "Custom website development with modern design, mobile responsiveness, and SEO optimization. Includes 5 pages and basic CMS setup.",
     price: 450,
     category: "Development",
-    image: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NDB8fHdlYnNpdGV8ZW58MHx8MHx8fDA%3D",
+    images: ["https://imagess.unsplash.com/photo-1551288049-bebda4e38f71?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NDB8fHdlYnNpdGV8ZW58MHx8MHx8fDA%3D"],
     rating: 4.8,
     reviewCount: 97,
     sellerId: "u1",
@@ -125,7 +126,7 @@ export const gigs: Gig[] = [
     description: "Strategic social media content creation to boost your brand's online presence. Includes content calendar, graphics, and caption writing.",
     price: 280,
     category: "Marketing",
-    image: "https://images.unsplash.com/photo-1611926653458-09294b3142bf?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTd8fHNvY2lhbCUyMG1lZGlhJTIwbWFya2V0aW5nfGVufDB8fDB8fHww",
+    images: ["https://imagess.unsplash.com/photo-1611926653458-09294b3142bf?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTd8fHNvY2lhbCUyMG1lZGlhJTIwbWFya2V0aW5nfGVufDB8fDB8fHww"],
     rating: 4.7,
     reviewCount: 84,
     sellerId: "u2",
@@ -143,7 +144,7 @@ export const gigs: Gig[] = [
     description: "High-quality, keyword-optimized blog content that drives traffic and engages readers. Thoroughly researched and tailored to your audience.",
     price: 85,
     category: "Writing",
-    image: "https://images.unsplash.com/photo-1499750310107-5fef28a66643?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8YmxvZ3xlbnwwfHwwfHx8MA%3D%3D",
+    images: ["https://imagess.unsplash.com/photo-1499750310107-5fef28a66643?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8YmxvZ3xlbnwwfHwwfHx8MA%3D%3D"],
     rating: 4.6,
     reviewCount: 65,
     sellerId: "u1",
@@ -161,7 +162,7 @@ export const gigs: Gig[] = [
     description: "Engaging explainer videos that simplify complex concepts and showcase your product's value. Includes script, voiceover, and animations.",
     price: 380,
     category: "Video & Animation",
-    image: "https://images.unsplash.com/photo-1626379616459-b2ce1d9decbc?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTN8fHZpZGVvJTIwZWRpdGluZ3xlbnwwfHwwfHx8MA%3D%3D",
+    images: ["https://imagess.unsplash.com/photo-1626379616459-b2ce1d9decbc?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTN8fHZpZGVvJTIwZWRpdGluZ3xlbnwwfHwwfHx8MA%3D%3D"],
     rating: 4.8,
     reviewCount: 73,
     sellerId: "u2",
@@ -179,7 +180,7 @@ export const gigs: Gig[] = [
     description: "Custom music composition for videos, podcasts, or commercials. Original tracks tailored to your project's mood and style.",
     price: 210,
     category: "Music & Audio",
-    image: "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8bXVzaWMlMjBwcm9kdWN0aW9ufGVufDB8fDB8fHww",
+    images: ["https://imagess.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8bXVzaWMlMjBwcm9kdWN0aW9ufGVufDB8fDB8fHww"],
     rating: 4.9,
     reviewCount: 59,
     sellerId: "u1",
@@ -197,7 +198,7 @@ export const gigs: Gig[] = [
     description: "Strategic business plan development with market analysis, financial projections, and growth strategies. Perfect for funding applications.",
     price: 520,
     category: "Business",
-    image: "https://images.unsplash.com/photo-1664575198308-3959904fa430?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTJ8fGJ1c2luZXNzJTIwcGxhbnxlbnwwfHwwfHx8MA%3D%3D",
+    images: ["https://imagess.unsplash.com/photo-1664575198308-3959904fa430?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTJ8fGJ1c2luZXNzJTIwcGxhbnxlbnwwfHwwfHx8MA%3D%3D"],
     rating: 4.7,
     reviewCount: 47,
     sellerId: "u2",
@@ -215,19 +216,15 @@ export const gigs: Gig[] = [
     description: "Personalized fitness coaching with customized workout plans and nutrition guidance. Virtual sessions and continuous support.",
     price: 95,
     category: "Lifestyle",
-    image: "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8Zml0bmVzcyUyMHRyYWluZXJ8ZW58MHx8MHx8fDA%3D",
-    rating: 4.8,
-    reviewCount: 83,
-    sellerId: "u1",
-    sellerName: "John Doe",
-    sellerAvatar: "/placeholder.svg",
-    createdAt: "2023-04-15T08:55:00Z",
-    deliveryTime: 1,
-    revisions: 4,
-    includes: ["Custom workout plan", "Nutrition guidance", "Weekly check-ins", "Video consultations"],
-    orders: 115,
+    images: ["https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=800&auto=format&fit=crop&q=60"],
+    createdAt: "2023-04-15T10:00:00Z",
+    deliveryTime: 6,
+    revisions: 2,
+    includes: ["Custom workout plans", "Diet guidance", "Virtual coaching sessions", "Weekly progress tracking"],
+    orders: [],
   },
 ];
+
 
 // Mock Orders
 export const orders: Order[] = [

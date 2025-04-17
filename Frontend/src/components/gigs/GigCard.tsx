@@ -13,7 +13,7 @@ export default function GigCard({ gig }: GigCardProps) {
       <div className="gig-card h-full flex flex-col">
         <div className="relative h-48 w-full">
           <img
-            src={gig.image || "/placeholder.svg"}
+            src={gig.images[0] || "/placeholder.svg"}
             alt={gig.title}
             className="h-full w-full object-cover"
           />
@@ -21,19 +21,18 @@ export default function GigCard({ gig }: GigCardProps) {
         <div className="p-4 flex-grow flex flex-col">
           <div className="flex items-center mb-2">
             <img
-              src={gig.sellerAvatar || "/placeholder.svg"}
-              alt={gig.sellerName}
+              src={gig.user.profilePic || "/placeholder.svg"}
+              alt={gig.user.name}
               className="w-8 h-8 rounded-full mr-2"
             />
-            <span className="text-sm font-medium">{gig.sellerName}</span>
+            <span className="text-sm font-medium">{gig.user.name}</span>
           </div>
           <h3 className="font-semibold text-lg mb-2 line-clamp-2">{gig.title}</h3>
           <div className="flex items-center mt-auto">
-            {gig.rating && (
+            {gig.createdAt && (
               <div className="flex items-center">
-                <RatingStars rating={gig.rating} />
                 <span className="ml-1 text-sm text-gray-600">
-                  ({gig.reviewCount})
+                  ({gig.createdAt})
                 </span>
               </div>
             )}

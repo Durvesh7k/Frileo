@@ -2,7 +2,7 @@ import prisma from "../utils/prisma.js"
 
 // CREATE GIG
 export const createGig = async (req, res) => {
-    const { title, description, price, category, imageUrl, deliveryTime} = req.body;
+    const { title, description, price, category, images, deliveryTime} = req.body;
     const userId = req.user?.id; // requires verifyJWT middleware
 
     try {
@@ -12,7 +12,7 @@ export const createGig = async (req, res) => {
                 description,
                 price: parseFloat(price),
                 category,
-                imageUrl,
+                images,
                 userId,
                 deliveryTime,
             },
@@ -33,7 +33,7 @@ export const getGigs = async (req, res) => {
                 user: {
                     select: {
                         id: true,
-                        username: true,
+                        name: true,
                         email: true,
                     },
                 },

@@ -22,7 +22,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     // Check for user in localStorage on initial load
-    const storedUser = localStorage.getItem("freelanceflow_user");
+    const storedUser = localStorage.getItem("Frielo_user");
     if (storedUser) {
       setUser(JSON.parse(storedUser));
     }
@@ -37,7 +37,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const { user, token } = response.data;
 
       setUser(user);
-      localStorage.setItem("freelanceflow_user", JSON.stringify(user));
+      localStorage.setItem("Frielo_user", JSON.stringify(user));
       saveToken(token); // saves to localStorage or cookies depending on your implementation
 
       toast({
@@ -82,7 +82,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const { user, token } = response.data;
 
       setUser(user);
-      localStorage.setItem("freelanceflow_user", JSON.stringify(user));
+      localStorage.setItem("Frielo_user", JSON.stringify(user));
       saveToken(token);
 
       toast({
@@ -107,7 +107,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const logout = () => {
     setUser(null);
-    localStorage.removeItem("freelanceflow_user");
+    localStorage.removeItem("Frielo_user");
     toast({
       title: "Logged out",
       description: "You have been successfully logged out",

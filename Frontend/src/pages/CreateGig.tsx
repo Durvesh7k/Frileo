@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
@@ -6,20 +5,45 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import Layout from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/providers/AuthProvider";
 import { categories } from "@/data/mock";
+import axiosInstance from "@/utils/axiosInstance";
+import { bucket_id, client } from "@/utils/appwrite";
+import { ID, Storage } from "appwrite";
+import { X } from "lucide-react";
 
 const createGigSchema = z.object({
-  title: z.string().min(10, "Title must be at least 10 characters").max(100, "Title cannot exceed 100 characters"),
-  description: z.string().min(50, "Description must be at least 50 characters").max(1000, "Description cannot exceed 1000 characters"),
+  title: z.string().min(10, "Title must be at least 10 characters").max(100),
+  description: z.string().min(50, "Description must be at least 50 characters").max(1000),
   category: z.string().min(1, "Please select a category"),
-  price: z.coerce.number().min(5, "Minimum price is $5").max(10000, "Maximum price is $10,000"),
+  price: z.coerce.number().min(5, "Minimum price is $5").max(10000),
+  deliveryTime: z.coerce.number().min(1, "Delivery time must be at least 1 day"),
 });
 
 type CreateGigFormValues = z.infer<typeof createGigSchema>;
@@ -29,8 +53,8 @@ export default function CreateGig() {
   const { toast } = useToast();
   const navigate = useNavigate();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [imageFile, setImageFile] = useState<File | null>(null);
-  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [imageFiles, setImageFiles] = useState<File[]>([]);
+  const [imagePreviews, setImagePreviews] = useState<string[]>([]);
 
   const form = useForm<CreateGigFormValues>({
     resolver: zodResolver(createGigSchema),
@@ -39,10 +63,11 @@ export default function CreateGig() {
       description: "",
       category: "",
       price: 5,
+      deliveryTime: 1,
     },
   });
 
-  function onSubmit(data: CreateGigFormValues) {
+  async function onSubmit(data: CreateGigFormValues) {
     if (!user) {
       toast({
         title: "Authentication required",
@@ -53,38 +78,104 @@ export default function CreateGig() {
       return;
     }
 
+    if (imageFiles.length === 0) {
+      toast({
+        title: "Image required",
+        description: "Please upload at least one image for your gig",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setIsSubmitting(true);
 
-    // Simulate API call
-    setTimeout(() => {
-      console.log("Form submitted:", data);
-      console.log("Image file:", imageFile);
+    try {
+      const storage = new Storage(client);
+      const imageUrls: string[] = [];
+
+      // Upload each image and collect URLs
+      for (const imageFile of imageFiles) {
+        const storageResponse = await storage.createFile(
+          bucket_id,
+          ID.unique(),
+          imageFile
+        );
+        
+        const image_url = storage.getFileView(bucket_id, storageResponse.$id);
+        imageUrls.push(image_url);
+      }
+
+      console.log("Sending data:", {
+        title: data.title,
+        description: data.description,
+        category: data.category, // This is now the category name
+        price: data.price,
+        deliveryTime: data.deliveryTime,
+        images: imageUrls
+      });
+            
+      // Create gig with array of image URLs and category name
+      const response = await axiosInstance.post("/gigs", {
+        title: data.title,
+        description: data.description,
+        category: data.category, // This is now the category name
+        price: data.price,
+        deliveryTime: data.deliveryTime,
+        images: imageUrls  // Array of image URLs
+      });
 
       toast({
         title: "Gig created successfully",
         description: "Your gig has been published and is now visible to buyers",
       });
 
-      setIsSubmitting(false);
       navigate("/profile");
-    }, 1500);
+    } catch (error) {
+      toast({
+        title: "Error creating gig",
+        description: error?.response?.data?.message || "Something went wrong",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   }
 
   function handleImageChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
-    if (!file) return;
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
 
-    setImageFile(file);
+    // Convert FileList to array and add to existing files (up to max 5)
+    const newFiles = Array.from(files);
+    
+    // Limit total images to 5
+    const totalFiles = [...imageFiles, ...newFiles];
+    if (totalFiles.length > 5) {
+      toast({
+        title: "Too many images",
+        description: "Maximum 5 images allowed",
+        variant: "destructive",
+      });
+      return;
+    }
 
-    // Create preview
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      setImagePreview(reader.result as string);
-    };
-    reader.readAsDataURL(file);
+    setImageFiles(totalFiles);
+    
+    // Create previews for all new files
+    newFiles.forEach(file => {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreviews(prev => [...prev, reader.result as string]);
+      };
+      reader.readAsDataURL(file);
+    });
   }
 
-  // Redirect if not logged in
+  function removeImage(index: number) {
+    setImageFiles(prev => prev.filter((_, i) => i !== index));
+    setImagePreviews(prev => prev.filter((_, i) => i !== index));
+  }
+
   if (!user) {
     return (
       <Layout>
@@ -138,10 +229,10 @@ export default function CreateGig() {
                       <FormItem>
                         <FormLabel>Gig Description</FormLabel>
                         <FormControl>
-                          <Textarea 
-                            placeholder="Provide a detailed description of your service..." 
-                            className="min-h-32" 
-                            {...field} 
+                          <Textarea
+                            placeholder="Provide a detailed description of your service..."
+                            className="min-h-32"
+                            {...field}
                           />
                         </FormControl>
                         <FormDescription>
@@ -166,7 +257,7 @@ export default function CreateGig() {
                           </FormControl>
                           <SelectContent>
                             {categories.map((category) => (
-                              <SelectItem key={category.id} value={category.id}>
+                              <SelectItem key={category.id} value={category.name}>
                                 {category.name}
                               </SelectItem>
                             ))}
@@ -197,49 +288,92 @@ export default function CreateGig() {
                     )}
                   />
 
+                  <FormField
+                    control={form.control}
+                    name="deliveryTime"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Delivery Time (in days)</FormLabel>
+                        <FormControl>
+                          <Input type="number" min="1" {...field} />
+                        </FormControl>
+                        <FormDescription>
+                          Enter the number of days it will take to deliver this gig.
+                        </FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
                   <div className="space-y-2">
-                    <FormLabel>Gig Image (Optional)</FormLabel>
-                    <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
-                      {imagePreview ? (
-                        <div className="space-y-4">
-                          <img 
-                            src={imagePreview} 
-                            alt="Preview" 
-                            className="max-h-48 mx-auto rounded-lg object-contain" 
-                          />
-                          <Button 
-                            type="button" 
-                            variant="outline" 
-                            onClick={() => {
-                              setImageFile(null);
-                              setImagePreview(null);
-                            }}
-                          >
-                            Remove Image
-                          </Button>
+                    <FormLabel>Gig Images (Up to 5)</FormLabel>
+                    <div className="border-2 border-dashed border-gray-300 rounded-lg p-6">
+                      {imagePreviews.length > 0 ? (
+                        <div>
+                          <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-4">
+                            {imagePreviews.map((preview, index) => (
+                              <div key={index} className="relative">
+                                <img
+                                  src={preview}
+                                  alt={`Preview ${index}`}
+                                  className="h-32 w-full object-cover rounded-lg"
+                                />
+                                <Button
+                                  type="button"
+                                  variant="destructive"
+                                  size="icon"
+                                  className="absolute top-1 right-1 h-6 w-6"
+                                  onClick={() => removeImage(index)}
+                                >
+                                  <X className="h-4 w-4" />
+                                </Button>
+                              </div>
+                            ))}
+                          </div>
+                          
+                          {imagePreviews.length < 5 && (
+                            <div className="text-center">
+                              <Input
+                                type="file"
+                                accept="image/*"
+                                onChange={handleImageChange}
+                                className="hidden"
+                                id="gig-image"
+                                multiple
+                              />
+                              <Button
+                                type="button"
+                                variant="outline"
+                                onClick={() => document.getElementById("gig-image")?.click()}
+                              >
+                                Add More Images
+                              </Button>
+                            </div>
+                          )}
                         </div>
                       ) : (
-                        <div className="space-y-2">
-                          <p className="text-gray-500">Upload an image to showcase your gig</p>
+                        <div className="text-center space-y-2">
+                          <p className="text-gray-500">Upload images to showcase your gig (required)</p>
                           <Input
                             type="file"
                             accept="image/*"
                             onChange={handleImageChange}
                             className="hidden"
                             id="gig-image"
+                            multiple
                           />
-                          <Button 
-                            type="button" 
+                          <Button
+                            type="button"
                             variant="outline"
                             onClick={() => document.getElementById("gig-image")?.click()}
                           >
-                            Select Image
+                            Select Images
                           </Button>
                         </div>
                       )}
                     </div>
                     <FormDescription>
-                      Upload a high-quality image that represents your service.
+                      Upload up to 5 high-quality images that represent your service.
                     </FormDescription>
                   </div>
 

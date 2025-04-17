@@ -1,5 +1,4 @@
-
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -8,14 +7,14 @@ import { Button } from "@/components/ui/button";
 import { Form, FormControl, FormField, FormItem } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Slider } from "@/components/ui/slider";
-import { 
+import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { 
+import {
   Card,
   CardContent,
   CardDescription,
@@ -23,9 +22,10 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { gigs, categories } from "@/data/mock";
+import { categories } from "@/data/mock";
 import GigCard from "@/components/gigs/GigCard";
 import { SearchIcon, FilterIcon } from "lucide-react";
+import axiosInstance from "@/utils/axiosInstance";
 
 const filterSchema = z.object({
   search: z.string().optional(),
@@ -38,9 +38,10 @@ const filterSchema = z.object({
 type FilterValues = z.infer<typeof filterSchema>;
 
 export default function Gigs() {
-  const [filteredGigs, setFilteredGigs] = useState(gigs);
-  const [priceRange, setPriceRange] = useState<[number, number]>([0, 1000]);
   const [showFilters, setShowFilters] = useState(false);
+  const [gigs, setGigs] = useState([]);
+  const [filteredGigs, setFilteredGigs] = useState([]);
+  const [priceRange, setPriceRange] = useState<[number, number]>([0, 1000]);
 
   const form = useForm<FilterValues>({
     resolver: zodResolver(filterSchema),
@@ -53,38 +54,52 @@ export default function Gigs() {
     },
   });
 
+  const getGigs = async () => {
+    try {
+      const response = await axiosInstance.get("/gigs");
+      setGigs(response.data);
+      setFilteredGigs(response.data); // Initialize filtered gigs with all gigs
+    } catch (err) {
+      console.log("Error in fetching gigs", err);
+    }
+  };
+
+  useEffect(() => {
+    getGigs();
+  }, []);
+
   function onSubmit(data: FilterValues) {
     let filtered = [...gigs];
-    
+
     // Filter by search term
     if (data.search) {
-      filtered = filtered.filter(gig => 
+      filtered = filtered.filter(gig =>
         gig.title.toLowerCase().includes(data.search!.toLowerCase())
       );
     }
-    
+
     // Filter by category
     if (data.category && data.category !== "all") {
       filtered = filtered.filter(gig => gig.category === data.category);
     }
-    
+
     // Filter by price range
-    filtered = filtered.filter(gig => 
+    filtered = filtered.filter(gig =>
       gig.price >= priceRange[0] && gig.price <= priceRange[1]
     );
-    
+
     // Sort results
     if (data.sort) {
       filtered = sortGigs(filtered, data.sort);
     }
-    
+
     setFilteredGigs(filtered);
   }
 
-  function sortGigs(gigsToSort: typeof gigs, sortBy: string) {
+  function sortGigs(gigsToSort, sortBy) {
     switch (sortBy) {
       case "newest":
-        return [...gigsToSort].sort((a, b) => 
+        return [...gigsToSort].sort((a, b) =>
           new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
         );
       case "price_asc":
@@ -98,9 +113,38 @@ export default function Gigs() {
     }
   }
 
-  function handlePriceRangeChange(value: number[]) {
+  function handlePriceRangeChange(value) {
     setPriceRange([value[0], value[1]]);
+    
+    // Apply the current form values with the new price range
+    const values = form.getValues();
+    let filtered = [...gigs];
+
+    if (values.search) {
+      filtered = filtered.filter(gig =>
+        gig.title.toLowerCase().includes(values.search!.toLowerCase())
+      );
+    }
+
+    if (values.category && values.category !== "all") {
+      filtered = filtered.filter(gig => gig.category === values.category);
+    }
+
+    filtered = filtered.filter(gig =>
+      gig.price >= value[0] && gig.price <= value[1]
+    );
+
+    if (values.sort) {
+      filtered = sortGigs(filtered, values.sort);
+    }
+
+    setFilteredGigs(filtered);
   }
+
+  // Update filteredGigs whenever gigs changes
+  useEffect(() => {
+    setFilteredGigs(gigs);
+  }, [gigs]);
 
   return (
     <Layout>
@@ -110,8 +154,8 @@ export default function Gigs() {
             <h1 className="text-3xl font-bold">Explore Gigs</h1>
             <p className="text-gray-600 mt-1">Find the perfect service for your business needs</p>
           </div>
-          <Button 
-            variant="outline" 
+          <Button
+            variant="outline"
             className="mt-4 md:mt-0 flex items-center gap-2"
             onClick={() => setShowFilters(!showFilters)}
           >
@@ -142,7 +186,7 @@ export default function Gigs() {
                     </FormItem>
                   )}
                 />
-                
+
                 <Button type="submit" className="flex-shrink-0">
                   Search
                 </Button>

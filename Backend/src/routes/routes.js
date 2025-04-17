@@ -4,7 +4,7 @@ import { createGig, getGigs, getGigById, updateGig, deleteGig } from '../control
 import { createOrder, updateOrderStatus, getOrders } from '../controllers/orderController.js';
 import { createReview, getReviews } from '../controllers/reviewController.js';
 import { sendMessage, getMessages } from '../controllers/messageController.js';
-import { getUser } from '../controllers/userController.js';
+import { getUser, updateUser } from '../controllers/userController.js';
 import {createCheckoutSession} from '../controllers/paymentController.js'
 import verifyJWT from "../middlewares/verifyJWT.js"
 
@@ -40,5 +40,8 @@ router.post('/make-payment', verifyJWT, createCheckoutSession);
 // 💬 Message Routes
 router.post('/messages', verifyJWT, sendMessage);
 router.get('/messages/:conversationId', verifyJWT, getMessages);
+
+router.get("/user/:id", getUser);
+router.put("/user/:id", updateUser);
 
 export default router;

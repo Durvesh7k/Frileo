@@ -2,7 +2,6 @@
 import 'dotenv/config'; // instead of require('dotenv').config();
 import express from 'express';
 import cors from 'cors';
-import { PrismaClient } from '@prisma/client';
 import Router from './routes/routes.js';
 import webhookRouter from './routes/webhook.js'
 
